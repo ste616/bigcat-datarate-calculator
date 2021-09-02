@@ -1,0 +1,51 @@
+.App {
+  font-family: sans-serif;
+  text-align: left;
+}
+.App h1 {
+  text-align: center;
+}
+#parameterTable {
+  border: 2px solid black;
+  border-collapse: collapse;
+  margin: 0px auto;
+}
+#parameterTable tbody th {
+  text-align: right;
+  padding: 0.2em;
+  border-style: none none dotted none;
+  border-width: 1px;
+}
+#parameterTable tbody td {
+  padding: 0.2em 1em;
+}
+#parameterTable input {
+  width: 4em;
+}
+#resultsTable {
+  font-size: 1.1em;
+}
+#resultsTable thead tr {
+  background: greenyellow;
+  border-collapse: collapse;
+}
+#resultsTable thead th,
+thead td {
+  padding: 0.3em 0;
+}
+#resultsTable select {
+  font-size: 1.1em;
+  padding: 0.2em;
+}
+#resultsTable tbody th {
+  text-align: right;
+  padding: 0.2em;
+}
+#resultsTable tbody td {
+  padding: 0.2em 0.5em;
+}
+.helpIcon {
+  width: 18px;
+  height: 18px;
+  padding: 0em;
+}
