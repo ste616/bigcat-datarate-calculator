@@ -348,6 +348,14 @@ export default function App() {
       }
     };
   };
+  const onFloatChangeHandler = function (ref, setter) {
+    return function (e) {
+      var val = parseFloat(ref.current.value);
+      if (!isNaN(val)) {
+        setter(val);
+      }
+    };
+  };
 
   // When the number of spectral windows changes,
   // we set any new windows to have a default of 2048
@@ -467,7 +475,7 @@ export default function App() {
                 name="cycleTime"
                 ref={refCycleTime}
                 placeholder={cycleTime}
-                onChange={onChangeHandler(refCycleTime, setCycleTime)}
+                onChange={onFloatChangeHandler(refCycleTime, setCycleTime)}
               />
             </td>
             <td>
