@@ -160,8 +160,12 @@ export default function App() {
   const [dataRate, setDataRate] = useState(0);
 
   // The units to show results in.
-  const [outputDataUnits, setOutputDataUnits] = useState("Mbits");
-  const dataUnitsRef = useRef(null);
+  const [outputDataUnits1, setOutputDataUnits1] = useState("Mbits");
+  const dataUnits1Ref = useRef(null);
+  const [outputDataUnits2, setOutputDataUnits2] = useState("Mbits");
+  const dataUnits2Ref = useRef(null);
+  const [outputDataUnits3, setOutputDataUnits3] = useState("TB");
+  const dataUnits3Ref = useRef(null);
   const [outputTimeUnits1, setOutputTimeUnits1] = useState("sec");
   const timeUnits1Ref = useRef(null);
   const [outputTimeUnits2, setOutputTimeUnits2] = useState("day");
@@ -176,7 +180,9 @@ export default function App() {
     MB: 8000000,
     MiB: 8388608,
     GB: 8000000000,
-    GiB: 8589934592
+    GiB: 8589934592,
+    TB: 8000000000000,
+    TiB: 8796093022208
   };
   const timeMultipliers = {
     sec: 1,
@@ -199,8 +205,14 @@ export default function App() {
   const availableTimeMultipliers = Object.keys(timeMultipliers).sort((a, b) => {
     return objValCmp(a, b, timeMultipliers);
   });
-  const dataUnitsChanged = function () {
-    setOutputDataUnits(dataUnitsRef.current.value);
+  const dataUnitsChanged = function (e) {
+    if (e.target.id == "dataUnits1") {
+      setOutputDataUnits1(dataUnits1Ref.current.value);
+    } else if (e.target.id == "dataUnits2") {
+      setOutputDataUnits2(dataUnits2Ref.current.value);
+    } else if (e.target.id == "dataUnits3") {
+      setOutputDataUnits3(dataUnits3Ref.current.value);
+    }
   };
   const timeUnitsChanged = function (e) {
     if (e.target.id == "timeUnits1") {
@@ -665,14 +677,20 @@ export default function App() {
       <h3>Results Summary (will update automatically)</h3>
       <table id="resultsTable">
       <thead>
+      </thead>
+      <tbody>
       <tr>
-      <th>Show results in</th>
+      <th>Output data per cycle:</th>
+      <td>
+      {(dataPerCycle / dataDivisors[outputDataUnits1]).toFixed(3)}{" "}
+    {outputDataUnits1}
+      </td>
       <td>
       <select
-    id="dataUnits"
-    ref={dataUnitsRef}
+    id="dataUnits1"
+    ref={dataUnits1Ref}
     onChange={dataUnitsChanged}
-    value={outputDataUnits}
+    value={outputDataUnits1}
       >
       {availableDataDivisors.map((v) => {
         return (
@@ -682,17 +700,6 @@ export default function App() {
         );
       })}
     </select>
-      </td>
-      <td>&nbsp;</td>
-      <td>&nbsp;</td>
-      </tr>
-      </thead>
-      <tbody>
-      <tr>
-      <th>Output data per cycle:</th>
-      <td>
-      {(dataPerCycle / dataDivisors[outputDataUnits]).toFixed(3)}{" "}
-    {outputDataUnits}
       </td>
       <td>&nbsp;</td>
       <td>
@@ -709,12 +716,28 @@ export default function App() {
       <td>
       {(
         (dataRate * timeMultipliers[outputTimeUnits1]) /
-          dataDivisors[outputDataUnits] +
+          dataDivisors[outputDataUnits2] +
           (dataPerScan * timeMultipliers[outputTimeUnits1]) /
-          dataDivisors[outputDataUnits]
+          dataDivisors[outputDataUnits2]
       ).toFixed(4)}{" "}
-    {outputDataUnits}/{outputTimeUnits1}
+    {outputDataUnits2}/{outputTimeUnits1}
     </td>
+      <td>
+      <select
+    id="dataUnits2"
+    ref={dataUnits2Ref}
+    onChange={dataUnitsChanged}
+    value={outputDataUnits2}
+      >
+      {availableDataDivisors.map((v) => {
+        return (
+            <option key={v} value={v}>
+            {v}
+          </option>
+        );
+      })}
+    </select>
+      </td>
       <td>
       <select
     id="timeUnits1"
@@ -745,12 +768,28 @@ export default function App() {
       <td>
       {(
         (dataRate * timeMultipliers[outputTimeUnits2]) /
-          dataDivisors[outputDataUnits] +
+          dataDivisors[outputDataUnits3] +
           (dataPerScan * timeMultipliers[outputTimeUnits2]) /
-          dataDivisors[outputDataUnits]
+          dataDivisors[outputDataUnits3]
       ).toFixed(4)}{" "}
-    {outputDataUnits}/{outputTimeUnits2}
+    {outputDataUnits3}/{outputTimeUnits2}
     </td>
+      <td>
+      <select
+    id="dataUnits3"
+    ref={dataUnits3Ref}
+    onChange={dataUnitsChanged}
+    value={outputDataUnits3}
+      >
+      {availableDataDivisors.map((v) => {
+        return (
+            <option key={v} value={v}>
+            {v}
+          </option>
+        );
+      })}
+    </select>
+      </td>
       <td>
       <select
     id="timeUnits2"
