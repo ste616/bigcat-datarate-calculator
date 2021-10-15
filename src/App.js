@@ -160,13 +160,16 @@ export default function App() {
   const [dataRate, setDataRate] = useState(0);
 
   // The units to show results in.
-  const [outputDataUnits, setOutputDataUnits] = useState("bits");
+  const [outputDataUnits, setOutputDataUnits] = useState("Mbits");
   const dataUnitsRef = useRef(null);
-  const [outputTimeUnits, setOutputTimeUnits] = useState("sec");
-  const timeUnitsRef = useRef(null);
+  const [outputTimeUnits1, setOutputTimeUnits1] = useState("sec");
+  const timeUnits1Ref = useRef(null);
+  const [outputTimeUnits2, setOutputTimeUnits2] = useState("day");
+  const timeUnits2Ref = useRef(null);
   // Some scales to convert these units.
   const dataDivisors = {
-    bits: 1,
+    Mbits: 1000000,
+    Gbits: 1000000000,
     bytes: 8,
     KB: 8000,
     KiB: 8192,
@@ -199,8 +202,12 @@ export default function App() {
   const dataUnitsChanged = function () {
     setOutputDataUnits(dataUnitsRef.current.value);
   };
-  const timeUnitsChanged = function () {
-    setOutputTimeUnits(timeUnitsRef.current.value);
+  const timeUnitsChanged = function (e) {
+    if (e.target.id == "timeUnits1") {
+      setOutputTimeUnits1(timeUnits1Ref.current.value);
+    } else if (e.target.id == "timeUnits2") {
+      setOutputTimeUnits2(timeUnits2Ref.current.value);
+    }
   };
 
   // This routine watches for changes in the amount of
@@ -439,298 +446,339 @@ export default function App() {
   }, [numSpectralWindows]);
 
   return (
-    <div className="App">
+      <div className="App">
       <h1>BIGCAT data rate calculator</h1>
       <b>Parameters:</b>
       <table id="parameterTable">
-        <tbody>
-          <tr>
-            <th>Number of antennas:</th>
-            <td>{numAntennas}</td>
+      <tbody>
+      <tr>
+      <th>Number of antennas:</th>
+      <td>{numAntennas}</td>
+      <td>
+      <img
+    className="helpIcon"
+    src="question-circle.svg"
+    title="The number of antennas assumed by this calculator; it can be changed in code if desired."
+    alt="Help Icon"
+      />
+      </td>
+      </tr>
+      <tr>
+      <th>Number of Stokes parameters:</th>
+      <td>{numStokes}</td>
+      <td>
+      <img
+    className="helpIcon"
+    src="question-circle.svg"
+    title="The number of Stokes parameters assumed by this calculator (I,Q,U,V); it can be changed in code if desired."
+    alt="Help Icon"
+      />
+      </td>
+      </tr>
+      <tr>
+      <th>Cycle time (s):</th>
+      <td>
+      <input
+    name="cycleTime"
+    ref={refCycleTime}
+    placeholder={cycleTime}
+    onChange={onFloatChangeHandler(refCycleTime, setCycleTime)}
+      />
+      </td>
+      <td>
+      <img
+    className="helpIcon"
+    src="question-circle.svg"
+    title="The time per cycle, which is used to determine the output data rate. This is specified in seconds."
+    alt="Help Icon"
+      />
+      </td>
+      </tr>
+      <tr>
+      <th>Output Bit Depth:</th>
+      <td>
+      <input
+    name="bitDepth"
+    ref={refBitDepth}
+    placeholder={bitDepth}
+    onChange={onChangeHandler(refBitDepth, setBitDepth)}
+      />
+      </td>
+      <td>
+      <img
+    className="helpIcon"
+    src="question-circle.svg"
+    title="The number of bits per number that is output. A complex visibility consists of two numbers (one for real and one for imaginary)."
+    alt="Help Icon"
+      />
+      </td>
+      </tr>
+      <tr>
+      <th>Average number of scans per hour:</th>
+      <td>
+      <input
+    name="scansPerHour"
+    ref={refScansPerHour}
+    placeholder={scansPerHour}
+    onChange={onChangeHandler(refScansPerHour, setScansPerHour)}
+      />
+      </td>
+      <td>
+      <img
+    className="helpIcon"
+    src="question-circle.svg"
+    title="The metadata which is output once per scan will be included this many times per hour, for the output data rate. A new scan is required whenever the source or frequency setup changes."
+    alt="Help Icon"
+      />
+      </td>
+      </tr>
+      <tr>
+      <th>Number of pulse or time bins:</th>
+      <td>
+      <input
+    name="numBins"
+    ref={refNumBins}
+    placeholder={numBins}
+    onChange={onChangeHandler(refNumBins, setNumBins)}
+      />
+      </td>
+      <td>
+      <img
+    className="helpIcon"
+    src="question-circle.svg"
+    title="The number of extra bins required for high-time-resolution or pulsar binning. A single bin for the continuum, and a second bin for the noise diode demodulation in the autocorrelations is included in addition to the number of bins specified here."
+    alt="Help Icon"
+      />
+      </td>
+      </tr>
+      <tr>
+      <th>Number of continuum windows:</th>
+      <td>
+      <input
+    name="numContinuumWindows"
+    ref={refNumContinuumWindows}
+    placeholder={numContinuumWindows}
+    onChange={onChangeHandler(
+      refNumContinuumWindows,
+      setNumContinuumWindows
+    )}
+      />
+      </td>
+      <td>
+      <img
+    className="helpIcon"
+    src="question-circle.svg"
+    title="The number of windows at continuum resolution; the number of channels in each window will be set by the next row down."
+    alt="Help Icon"
+      />
+      </td>
+      </tr>
+      <tr>
+      <th>Number of channels per continuum window:</th>
+      <td>
+      <input
+    name="numContinuumChannels"
+    ref={refNumContinuumChannels}
+    placeholder={numContinuumChannels}
+    onChange={onChangeHandler(
+      refNumContinuumChannels,
+      setNumContinuumChannels
+    )}
+      />
+      </td>
+      <td>
+      <img
+    className="helpIcon"
+    src="question-circle.svg"
+    title="The number of channels in each window at continuum resolution."
+    alt="Help Icon"
+      />
+      </td>
+      </tr>
+      <tr>
+      <th>Number of Tsys bins per continuum window:</th>
+      <td>
+      <input
+    name="tsysBins"
+    ref={refTsysBins}
+    placeholder={tsysBins}
+    onChange={onChangeHandler(refTsysBins, setTsysBins)}
+      />
+      </td>
+      <td>
+      <img
+    className="helpIcon"
+    src="question-circle.svg"
+    title="Each continuum window will be divided into this many equal-frequency-width bins, and a system temperature will be calculated for each of these bins. This number can be anywhere from 1 to the same number of channels in the continuum window."
+    alt="Help Icon"
+      />
+      </td>
+      </tr>
+      <tr>
+      <th>Number of spectral windows:</th>
+      <td>
+      <input
+    name="numSpectralWindows"
+    ref={refNumSpectralWindows}
+    placeholder={numSpectralWindows}
+    onChange={onChangeHandler(
+      refNumSpectralWindows,
+      setNumSpectralWindows
+    )}
+      />
+      </td>
+      <td>
+      <img
+    className="helpIcon"
+    src="question-circle.svg"
+    title="The number of spectral-resolution windows you want. For each window, a new row will be shown below, which can be used to specify how many channels to use in that window."
+    alt="Help Icon"
+      />
+      </td>
+      </tr>
+      {[...Array(numSpectralWindows)].map((x, i) => {
+        return (
+            <tr key={"spectralWindowRow" + i}>
+            <th>Channels in spectral window {i + 1}:</th>
             <td>
-              <img
-                className="helpIcon"
-                src="question-circle.svg"
-                title="The number of antennas assumed by this calculator; it can be changed in code if desired."
-                alt="Help Icon"
-              />
-            </td>
-          </tr>
-          <tr>
-            <th>Number of Stokes parameters:</th>
-            <td>{numStokes}</td>
-            <td>
-              <img
-                className="helpIcon"
-                src="question-circle.svg"
-                title="The number of Stokes parameters assumed by this calculator (I,Q,U,V); it can be changed in code if desired."
-                alt="Help Icon"
-              />
-            </td>
-          </tr>
-          <tr>
-            <th>Cycle time (s):</th>
-            <td>
-              <input
-                name="cycleTime"
-                ref={refCycleTime}
-                placeholder={cycleTime}
-                onChange={onFloatChangeHandler(refCycleTime, setCycleTime)}
-              />
+            <input
+          name={"numChannelsSpectralWindow" + (i + 1)}
+          placeholder={numSpectralWindowChannels[i]}
+          id={"numChannelsSpectralWindow_" + i}
+          onChange={changeNumChannelsSpectralWindow}
+            />
             </td>
             <td>
-              <img
-                className="helpIcon"
-                src="question-circle.svg"
-                title="The time per cycle, which is used to determine the output data rate. This is specified in seconds."
-                alt="Help Icon"
-              />
+            <img
+          className="helpIcon"
+          src="question-circle.svg"
+          title="Each spectral window can have any number of channels (although a minimum of 2 channels)."
+          alt="Help Icon"
+            />
             </td>
-          </tr>
-          <tr>
-            <th>Output Bit Depth:</th>
-            <td>
-              <input
-                name="bitDepth"
-                ref={refBitDepth}
-                placeholder={bitDepth}
-                onChange={onChangeHandler(refBitDepth, setBitDepth)}
-              />
-            </td>
-            <td>
-              <img
-                className="helpIcon"
-                src="question-circle.svg"
-                title="The number of bits per number that is output. A complex visibility consists of two numbers (one for real and one for imaginary)."
-                alt="Help Icon"
-              />
-            </td>
-          </tr>
-          <tr>
-            <th>Average number of scans per hour:</th>
-            <td>
-              <input
-                name="scansPerHour"
-                ref={refScansPerHour}
-                placeholder={scansPerHour}
-                onChange={onChangeHandler(refScansPerHour, setScansPerHour)}
-              />
-            </td>
-            <td>
-              <img
-                className="helpIcon"
-                src="question-circle.svg"
-                title="The metadata which is output once per scan will be included this many times per hour, for the output data rate. A new scan is required whenever the source or frequency setup changes."
-                alt="Help Icon"
-              />
-            </td>
-          </tr>
-          <tr>
-            <th>Number of pulse or time bins:</th>
-            <td>
-              <input
-                name="numBins"
-                ref={refNumBins}
-                placeholder={numBins}
-                onChange={onChangeHandler(refNumBins, setNumBins)}
-              />
-            </td>
-            <td>
-              <img
-                className="helpIcon"
-                src="question-circle.svg"
-                title="The number of extra bins required for high-time-resolution or pulsar binning. A single bin for the continuum, and a second bin for the noise diode demodulation in the autocorrelations is included in addition to the number of bins specified here."
-                alt="Help Icon"
-              />
-            </td>
-          </tr>
-          <tr>
-            <th>Number of continuum windows:</th>
-            <td>
-              <input
-                name="numContinuumWindows"
-                ref={refNumContinuumWindows}
-                placeholder={numContinuumWindows}
-                onChange={onChangeHandler(
-                  refNumContinuumWindows,
-                  setNumContinuumWindows
-                )}
-              />
-            </td>
-            <td>
-              <img
-                className="helpIcon"
-                src="question-circle.svg"
-                title="The number of windows at continuum resolution; the number of channels in each window will be set by the next row down."
-                alt="Help Icon"
-              />
-            </td>
-          </tr>
-          <tr>
-            <th>Number of channels per continuum window:</th>
-            <td>
-              <input
-                name="numContinuumChannels"
-                ref={refNumContinuumChannels}
-                placeholder={numContinuumChannels}
-                onChange={onChangeHandler(
-                  refNumContinuumChannels,
-                  setNumContinuumChannels
-                )}
-              />
-            </td>
-            <td>
-              <img
-                className="helpIcon"
-                src="question-circle.svg"
-                title="The number of channels in each window at continuum resolution."
-                alt="Help Icon"
-              />
-            </td>
-          </tr>
-          <tr>
-            <th>Number of Tsys bins per continuum window:</th>
-            <td>
-              <input
-                name="tsysBins"
-                ref={refTsysBins}
-                placeholder={tsysBins}
-                onChange={onChangeHandler(refTsysBins, setTsysBins)}
-              />
-            </td>
-            <td>
-              <img
-                className="helpIcon"
-                src="question-circle.svg"
-                title="Each continuum window will be divided into this many equal-frequency-width bins, and a system temperature will be calculated for each of these bins. This number can be anywhere from 1 to the same number of channels in the continuum window."
-                alt="Help Icon"
-              />
-            </td>
-          </tr>
-          <tr>
-            <th>Number of spectral windows:</th>
-            <td>
-              <input
-                name="numSpectralWindows"
-                ref={refNumSpectralWindows}
-                placeholder={numSpectralWindows}
-                onChange={onChangeHandler(
-                  refNumSpectralWindows,
-                  setNumSpectralWindows
-                )}
-              />
-            </td>
-            <td>
-              <img
-                className="helpIcon"
-                src="question-circle.svg"
-                title="The number of spectral-resolution windows you want. For each window, a new row will be shown below, which can be used to specify how many channels to use in that window."
-                alt="Help Icon"
-              />
-            </td>
-          </tr>
-          {[...Array(numSpectralWindows)].map((x, i) => {
-            return (
-              <tr key={"spectralWindowRow" + i}>
-                <th>Channels in spectral window {i + 1}:</th>
-                <td>
-                  <input
-                    name={"numChannelsSpectralWindow" + (i + 1)}
-                    placeholder={numSpectralWindowChannels[i]}
-                    id={"numChannelsSpectralWindow_" + i}
-                    onChange={changeNumChannelsSpectralWindow}
-                  />
-                </td>
-                <td>
-                  <img
-                    className="helpIcon"
-                    src="question-circle.svg"
-                    title="Each spectral window can have any number of channels (although a minimum of 2 channels)."
-                    alt="Help Icon"
-                  />
-                </td>
-              </tr>
-            );
-          })}
-        </tbody>
+            </tr>
+        );
+      })}
+    </tbody>
       </table>
       <div className="results">
-        <h3>Results Summary (will update automatically)</h3>
-        <table id="resultsTable">
-          <thead>
-            <tr>
-              <th>Show results in</th>
-              <td>
-                <select
-                  id="dataUnits"
-                  ref={dataUnitsRef}
-                  onChange={dataUnitsChanged}
-                >
-                  {availableDataDivisors.map((v) => {
-                    return (
-                      <option key={v} value={v}>
-                        {v}
-                      </option>
-                    );
-                  })}
-                </select>
-              </td>
-              <td>
-                <select
-                  id="timeUnits"
-                  ref={timeUnitsRef}
-                  onChange={timeUnitsChanged}
-                >
-                  {availableTimeMultipliers.map((v) => {
-                    return (
-                      <option key={v} value={v}>
-                        {v}
-                      </option>
-                    );
-                  })}
-                </select>
-              </td>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <th>Output data per cycle:</th>
-              <td>
-                {(dataPerCycle / dataDivisors[outputDataUnits]).toFixed(3)}{" "}
-                {outputDataUnits}
-              </td>
-              <td>
-                <img
-                  className="helpIcon"
-                  src="question-circle.svg"
-                  title="The amount of data output in each cycle, including metadata, but excluding any scan-based metadata."
-                  alt="Help Icon"
-                />
-              </td>
-            </tr>
-            <tr>
-              <th>Output data rate:</th>
-              <td>
-                {(
-                  (dataRate * timeMultipliers[outputTimeUnits]) /
-                    dataDivisors[outputDataUnits] +
-                  (dataPerScan * timeMultipliers[outputTimeUnits]) /
-                    dataDivisors[outputDataUnits]
-                ).toFixed(4)}{" "}
-                {outputDataUnits}/{outputTimeUnits}
-              </td>
-              <td>
-                <img
-                  className="helpIcon"
-                  src="question-circle.svg"
-                  title="The average data rate in the selected time period, which includes the metadata for the specified average number of scans per hour."
-                  alt="Help Icon"
-                />
-              </td>
-            </tr>
-          </tbody>
-        </table>
+      <h3>Results Summary (will update automatically)</h3>
+      <table id="resultsTable">
+      <thead>
+      <tr>
+      <th>Show results in</th>
+      <td>
+      <select
+    id="dataUnits"
+    ref={dataUnitsRef}
+    onChange={dataUnitsChanged}
+    value={outputDataUnits}
+      >
+      {availableDataDivisors.map((v) => {
+        return (
+            <option key={v} value={v}>
+            {v}
+          </option>
+        );
+      })}
+    </select>
+      </td>
+      <td>&nbsp;</td>
+      <td>&nbsp;</td>
+      </tr>
+      </thead>
+      <tbody>
+      <tr>
+      <th>Output data per cycle:</th>
+      <td>
+      {(dataPerCycle / dataDivisors[outputDataUnits]).toFixed(3)}{" "}
+    {outputDataUnits}
+      </td>
+      <td>&nbsp;</td>
+      <td>
+      <img
+    className="helpIcon"
+    src="question-circle.svg"
+    title="The amount of data output in each cycle, including metadata, but excluding any scan-based metadata."
+    alt="Help Icon"
+      />
+      </td>
+      </tr>
+      <tr>
+      <th>Output data rate:</th>
+      <td>
+      {(
+        (dataRate * timeMultipliers[outputTimeUnits1]) /
+          dataDivisors[outputDataUnits] +
+          (dataPerScan * timeMultipliers[outputTimeUnits1]) /
+          dataDivisors[outputDataUnits]
+      ).toFixed(4)}{" "}
+    {outputDataUnits}/{outputTimeUnits1}
+    </td>
+      <td>
+      <select
+    id="timeUnits1"
+    ref={timeUnits1Ref}
+    onChange={timeUnitsChanged}
+    value={outputTimeUnits1}
+      >
+      {availableTimeMultipliers.map((v) => {
+        return (
+            <option key={v} value={v}>
+            {v}
+          </option>
+        );
+      })}
+    </select>
+      </td>
+      <td>
+      <img
+    className="helpIcon"
+    src="question-circle.svg"
+    title="The average data rate in the selected time period, which includes the metadata for the specified average number of scans per hour."
+    alt="Help Icon"
+      />
+      </td>
+      </tr>
+      <tr>
+      <th>Output data rate:</th>
+      <td>
+      {(
+        (dataRate * timeMultipliers[outputTimeUnits2]) /
+          dataDivisors[outputDataUnits] +
+          (dataPerScan * timeMultipliers[outputTimeUnits2]) /
+          dataDivisors[outputDataUnits]
+      ).toFixed(4)}{" "}
+    {outputDataUnits}/{outputTimeUnits2}
+    </td>
+      <td>
+      <select
+    id="timeUnits2"
+    ref={timeUnits2Ref}
+    onChange={timeUnitsChanged}
+    value={outputTimeUnits2}
+      >
+      {availableTimeMultipliers.map((v) => {
+        return (
+            <option key={v} value={v}>
+            {v}
+          </option>
+        );
+      })}
+    </select>
+      </td>
+      <td>
+      <img
+    className="helpIcon"
+    src="question-circle.svg"
+    title="The average data rate in the selected time period, which includes the metadata for the specified average number of scans per hour."
+    alt="Help Icon"
+      />
+      </td>
+      </tr>
+      </tbody>
+      </table>
       </div>
-    </div>
+      </div>
   );
 }
